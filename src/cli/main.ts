@@ -10,26 +10,26 @@ async function main() {
   const command = args[0];
 
   if (command === 'analyze') {
-    const [symbol, expiration] = args.slice(1);
-    if (!symbol || !expiration) {
-      console.error('Usage: risk-analyzer analyze <symbol> <expiration>');
+    const [source, instrument, expiration] = args.slice(1);
+    if (!source || !instrument || !expiration) {
+      console.error('Usage: risk-analyzer analyze <source> <instrument> <expiration>');
       process.exit(1);
     }
-    await analyze(symbol, expiration);
+    await analyze(source, instrument, expiration);
   } else if (command === 'list-expirations') {
-    const [symbol] = args.slice(1);
-    if (!symbol) {
-      console.error('Usage: risk-analyzer list-expirations <symbol>');
+    const [source, instrument] = args.slice(1);
+    if (!source || !instrument) {
+      console.error('Usage: risk-analyzer list-expirations <source> <instrument>');
       process.exit(1);
     }
-    await listExpirations(symbol);
+    await listExpirations(source, instrument);
   } else if (command === 'snapshot') {
-    const [symbol, expiration] = args.slice(1);
-    if (!symbol || !expiration) {
-      console.error('Usage: risk-analyzer snapshot <symbol> <expiration>');
+    const [source, instrument, expiration] = args.slice(1);
+    if (!source || !instrument || !expiration) {
+      console.error('Usage: risk-analyzer snapshot <source> <instrument> <expiration>');
       process.exit(1);
     }
-    await snapshot(symbol, expiration);
+    await snapshot(source, instrument, expiration);
   } else if (command === 'config') {
     const subCommand = args[1];
     if (subCommand === 'show') {

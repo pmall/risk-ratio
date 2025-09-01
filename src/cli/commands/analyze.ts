@@ -1,16 +1,16 @@
 
-import { DeribitDataSource } from '../../data-sources/deribit';
+import { getDataSource } from '../../data-sources';
 import { filterOptions } from '../../core/filters';
 import { calculatePriceProbabilities } from '../../core/probability';
 
-export async function analyze(symbol: string, expiration: string) {
-  const dataSource = new DeribitDataSource();
+export async function analyze(source: string, instrument: string, expiration: string) {
+  const dataSource = getDataSource(source, instrument);
 
-  console.log(`Analyzing ${symbol} options for expiration: ${expiration}`);
+  console.log(`Analyzing ${instrument} options for expiration: ${expiration} from ${source}`);
 
   const [options, currentPrice] = await Promise.all([
-    dataSource.getOptionChain(symbol, expiration),
-    dataSource.getCurrentPrice(symbol),
+    dataSource.getOptionChain(instrument, expiration),
+    dataSource.getCurrentPrice(instrument),
   ]);
 
   console.log(`Current Price: ${currentPrice.toFixed(2)}`);

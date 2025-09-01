@@ -54,26 +54,26 @@ This CLI tool provides the following commands:
 
 All commands are run using `npm run cli -- <command> <arguments>`.
 
-1.  **List available expirations for SOL:**
+1.  **List available expirations for SOL/USDC on Deribit:**
     ```bash
-    npm run cli -- list-expirations SOL
+    npm run cli -- list-expirations deribit SOL-USDC
     ```
     Example Output:
     ```
-    Available expirations for SOL:
+    Available expirations for SOL-USDC from deribit:
     2025-09-02
     2025-09-03
     2025-09-05
     ...
     ```
 
-2.  **Get a snapshot of the options chain for SOL on a specific expiration date (e.g., 2025-09-02):**
+2.  **Get a snapshot of the options chain for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-02):**
     ```bash
-    npm run cli -- snapshot SOL 2025-09-02
+    npm run cli -- snapshot deribit SOL-USDC 2025-09-02
     ```
     Example Output (truncated):
     ```
-    Option chain for SOL on 2025-09-02:
+    Option chain for SOL-USDC on 2025-09-02 from deribit:
     {
       strike: 176,
       type: 'call',
@@ -89,13 +89,13 @@ All commands are run using `npm run cli -- <command> <arguments>`.
     ...
     ```
 
-3.  **Analyze and list prices and their probabilities for SOL on a specific expiration date (e.g., 2025-09-02):**
+3.  **Analyze and list prices and their probabilities for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-02):**
     ```bash
-    npm run cli -- analyze SOL 2025-09-02
+    npm run cli -- analyze deribit SOL-USDC 2025-09-02
     ```
     Example Output (truncated):
     ```
-    Analyzing SOL options for expiration: 2025-09-02
+    Analyzing SOL-USDC options for expiration: 2025-09-02 from deribit:
     Current Price: 198.76
     Total Options: 104
     Filtered Options: 104

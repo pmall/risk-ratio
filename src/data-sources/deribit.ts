@@ -57,14 +57,17 @@ const ExpirationsSchema = z.record(z.string(), z.object({ option: z.array(z.stri
 
 export class DeribitDataSource implements DataSource {
   private readonly apiUrl = config.deribit.apiUrl;
+  private baseCurrency: string;
+  private quoteCurrency: string;
 
-  async getOptionChain(symbol: string, expiration: string): Promise<OptionData[]> {
-    if (symbol.toUpperCase() !== 'SOL') {
-      throw new Error('Only SOL/USDC options are supported for now.');
-    }
+  constructor(baseCurrency: string, quoteCurrency: string) {
+    this.baseCurrency = baseCurrency;
+    this.quoteCurrency = quoteCurrency;
+  }
 
-    const instruments = await this._fetchSolUsdcInstruments();
-    
+  async getOptionChain(instrument: string, expiration: string): Promise<OptionData[]> {
+    const instruments = await this.fetchInstruments(this.baseCurrency, 'option');
+
     // Convert YYYY-MM-DD to DDMMMYY (e.g., 2025-09-02 to 2SEP25)
     const [yearStr, monthStr, dayStr] = expiration.split('-');
     const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
@@ -75,65 +78,57 @@ export class DeribitDataSource implements DataSource {
     const deribitExpirationFormat = `${day}${month}${year}`;
 
     const filteredInstruments = instruments.filter(
-      (instrument) => instrument.instrument_name.includes(deribitExpirationFormat)
+      (instrumentData) => instrumentData.instrument_name.includes(deribitExpirationFormat) &&
+                          instrumentData.base_currency === this.baseCurrency &&
+                          instrumentData.quote_currency === this.quoteCurrency
     );
 
     const optionData: OptionData[] = [];
-    for (const instrument of filteredInstruments) {
-      const bookSummary = await this.fetchBookSummary(instrument.instrument_name);
+    for (const instrumentData of filteredInstruments) {
+      const bookSummary = await this.fetchBookSummary(instrumentData.instrument_name);
       if (bookSummary) {
         optionData.push({
-          strike: instrument.strike,
-          type: instrument.option_type,
+          strike: instrumentData.strike,
+          type: instrumentData.option_type,
           impliedVolatility: bookSummary.mark_iv,
           volume: bookSummary.volume ?? 0,
           openInterest: bookSummary.open_interest,
           bidPrice: bookSummary.bid_price ?? 0,
           askPrice: bookSummary.ask_price ?? 0,
           lastPrice: bookSummary.last ?? 0,
-          expiration: new Date(instrument.expiration_timestamp).toISOString(),
-          instrument_name: instrument.instrument_name,
+          expiration: new Date(instrumentData.expiration_timestamp).toISOString(),
+          instrument_name: instrumentData.instrument_name,
         });
       }
     }
     return optionData;
   }
 
-  async getAvailableExpirations(symbol: string): Promise<string[]> {
-    if (symbol.toUpperCase() !== 'SOL') {
-      throw new Error('Only SOL/USDC options are supported for now.');
-    }
+  async getAvailableExpirations(instrument: string): Promise<string[]> {
+    const allInstrumentsForBase = await this.fetchInstruments(this.baseCurrency, 'option');
+    const relevantInstruments = allInstrumentsForBase.filter(
+      (inst) => inst.base_currency === this.baseCurrency && inst.quote_currency === this.quoteCurrency
+    );
 
-    const solUsdcOptions = await this._fetchSolUsdcInstruments();
-
-    const solUsdcExpirations = solUsdcOptions.map(instrument => {
-      const date = new Date(instrument.expiration_timestamp);
+    const relevantExpirations = relevantInstruments.map(instrumentData => {
+      const date = new Date(instrumentData.expiration_timestamp);
       return date.toISOString().split('T')[0];
     });
 
-    const uniqueExpirations = [...new Set(solUsdcExpirations)].sort();
+    const uniqueExpirations = [...new Set(relevantExpirations)].sort();
 
     return uniqueExpirations;
   }
 
-  async getCurrentPrice(symbol: string): Promise<number> {
-    if (symbol.toUpperCase() !== 'SOL') {
-      throw new Error('Only SOL/USDC index price is supported for now.');
-    }
-    const json = await this.fetchFromApi(`/public/get_index_price?index_name=sol_usdc`);
+  async getCurrentPrice(instrument: string): Promise<number> {
+    const indexName = `${this.baseCurrency.toLowerCase()}_${this.quoteCurrency.toLowerCase()}`;
+    const json = await this.fetchFromApi(`/public/get_index_price?index_name=${indexName}`);
     const indexPrice = IndexPriceSchema.parse(json.result);
     return indexPrice.index_price;
   }
 
-  private async _fetchSolUsdcInstruments() {
-    const usdcInstruments = await this.fetchInstruments('USDC', 'option');
-    return usdcInstruments.filter(
-      (instrument) => instrument.base_currency === 'SOL' && instrument.quote_currency === 'USDC'
-    );
-  }
-
   private async fetchInstruments(currency: string, kind: 'option' | 'future') {
-    const json = await this.fetchFromApi(`/public/get_instruments?currency=${currency}&kind=${kind}`);
+    const json = await this.fetchFromApi(`/public/get_instruments?currency=${this.quoteCurrency}&kind=${kind}`);
     return z.array(InstrumentSchema).parse(json.result);
   }
 
