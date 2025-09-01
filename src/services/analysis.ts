@@ -9,7 +9,7 @@ export interface ProbabilisticAnalysisResult {
   totalOptions: number;
   filteredOptionsCount: number;
   priceProbabilities: PriceProbability[];
-  totalProbability: number;
+  
 }
 
 export async function getProbabilisticPriceDistribution(
@@ -43,17 +43,13 @@ export async function getProbabilisticPriceDistribution(
     config.priceRangeExtensionFactor
   );
 
-  const totalProbability = priceProbabilities.reduce(
-    (sum: number, p: { probability: number }) => sum + p.probability,
-    0
-  );
+  
 
   return {
     currentPrice,
     totalOptions,
     filteredOptionsCount,
     priceProbabilities,
-    totalProbability,
   };
 }
 

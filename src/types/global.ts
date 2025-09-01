@@ -30,6 +30,5 @@ export interface AnalysisResult {
     totalOptions: number;
     filteredOptions: number;
     priceRange: [number, number];
-    totalProbability: number;
   };
 }

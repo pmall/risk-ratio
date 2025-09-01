@@ -18,5 +18,5 @@ export async function probabilities(source: string, instrument: string, expirati
     );
   }
 
-  console.log(`\nTotal Probability: ${result.totalProbability.toFixed(4)}`);
+  
 }
