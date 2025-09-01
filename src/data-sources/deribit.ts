@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import { DataSource } from './base';
 import { OptionData } from '../types/global';
-import { config } from '../utils/config';
+import { config } from '../config';
 
 // Zod Schemas for Deribit API responses
 const InstrumentSchema = z.object({

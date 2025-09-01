@@ -29,7 +29,7 @@ This CLI tool provides the following commands:
 
 *   `list-expirations`: Lists available expiration dates for a given instrument.
 *   `snapshot`: Fetches and displays the raw options chain data for a specific instrument and expiration.
-*   `analyze`: Computes and displays the probabilistic price distribution for an underlying asset at a given expiration.
+*   `probabilities`: Computes and displays the probabilistic price distribution for an underlying asset at a given expiration.
 
 ## 🚀 Installation
 
@@ -49,6 +49,24 @@ This CLI tool provides the following commands:
     DERIBIT_API_URL=https://www.deribit.com/api/v2
     ```
     Copy this content to a new file named `.env`.
+
+## ⚙️ Configuration
+
+Application-wide configuration values are defined in `src/config.ts`. This file centralizes settings for API endpoints, filtering options, and price distribution parameters.
+
+```typescript
+export const config = {
+  deribit: {
+    apiUrl: process.env.DERIBIT_API_URL || 'https://www.deribit.com/api/v2',
+  },
+  maxBidAskSpread: 1,             // Maximum allowed bid-ask spread for options to be considered
+  maxIv: 200,                     // Maximum implied volatility for options to be considered
+  priceStep: 1,                   // The increment for price points in the probability distribution
+  priceRangeExtensionFactor: 1.2, // Factor to extend the price range beyond current price for distribution calculation
+};
+```
+
+You can modify these values directly in `src/config.ts` to adjust the behavior of the CLI tool.
 
 ## 💡 Usage Examples
 
@@ -91,7 +109,7 @@ All commands are run using `npm run cli -- <command> <arguments>`.
 
 3.  **Analyze and list prices and their probabilities for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-02):**
     ```bash
-    npm run cli -- analyze deribit SOL-USDC 2025-09-02
+    npm run cli -- probabilities deribit SOL-USDC 2025-09-02
     ```
     Example Output (truncated):
     ```

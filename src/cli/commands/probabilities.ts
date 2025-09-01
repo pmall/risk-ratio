@@ -2,6 +2,7 @@
 import { getDataSource } from '../../data-sources';
 import { filterOptions } from '../../core/filters';
 import { calculatePriceProbabilities } from '../../core/probability';
+import { config } from '../../config';
 
 export async function probabilities(source: string, instrument: string, expiration: string) {
   const dataSource = getDataSource(source, instrument);
@@ -18,10 +19,10 @@ export async function probabilities(source: string, instrument: string, expirati
 
   const filteredOptions = filterOptions(options, currentPrice, {
     minVolume: 0,
-    maxBidAskSpread: 1000000, // Set to a very large number to effectively disable for now
+    maxBidAskSpread: config.maxBidAskSpread, // Set to a very large number to effectively disable for now
     minOpenInterest: 0,
     minIv: 0.01,
-    maxIv: 500.0, // Increased maxIv to accommodate percentage values
+    maxIv: config.maxIv, // Increased maxIv to accommodate percentage values
   });
 
   console.log(`Filtered Options: ${filteredOptions.length}`);
@@ -29,8 +30,8 @@ export async function probabilities(source: string, instrument: string, expirati
   const priceProbabilities = calculatePriceProbabilities(
     filteredOptions,
     currentPrice,
-    1, // Price step
-    1.2 // Price range extension factor
+    config.priceStep, // Price step
+    config.priceRangeExtensionFactor // Price range extension factor
   );
 
   console.log('\nPrice Probability Distribution:');
