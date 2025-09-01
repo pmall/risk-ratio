@@ -1,5 +1,5 @@
 
-import { config } from '../../config';
+import { config } from '@/config';
 
 export function showConfig() {
   console.log('Current Configuration:');

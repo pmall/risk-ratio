@@ -1,4 +1,4 @@
-import { getDataSource } from '../../data-sources';
+import { getDataSource } from '@/data-sources';
 
 export async function snapshot(source: string, instrument: string, expiration: string) {
   const dataSource = getDataSource(source, instrument);

@@ -1,5 +1,5 @@
 
-import { OptionData } from '../types/global';
+import { OptionData } from '@/types/global';
 
 export interface QualityFilters {
   minVolume: number;

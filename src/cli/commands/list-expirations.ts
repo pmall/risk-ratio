@@ -1,5 +1,5 @@
 
-import { getDataSource } from '../../data-sources';
+import { getDataSource } from '@/data-sources';
 
 export async function listExpirations(source: string, instrument: string) {
   const dataSource = getDataSource(source, instrument);

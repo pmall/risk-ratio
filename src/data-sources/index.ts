@@ -1,5 +1,5 @@
-import { DeribitDataSource } from './deribit';
-import { DataSource } from './base';
+import { DeribitDataSource } from '@/data-sources/deribit';
+import { DataSource } from '@/data-sources/base';
 
 export function getDataSource(source: string, instrument: string): DataSource {
   if (source.toLowerCase() === 'deribit') {

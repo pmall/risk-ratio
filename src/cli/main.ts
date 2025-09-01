@@ -1,8 +1,8 @@
 
-import { probabilities } from './commands/probabilities';
-import { listExpirations } from './commands/list-expirations';
-import { snapshot } from './commands/snapshot';
-import { showConfig, setConfig } from './commands/config';
+import { probabilities } from '@/cli/commands/probabilities';
+import { listExpirations } from '@/cli/commands/list-expirations';
+import { snapshot } from '@/cli/commands/snapshot';
+import { showConfig, setConfig } from '@/cli/commands/config';
 
 
 async function main() {

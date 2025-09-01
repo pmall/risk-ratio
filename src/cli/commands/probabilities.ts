@@ -1,8 +1,8 @@
 
-import { getDataSource } from '../../data-sources';
-import { filterOptions } from '../../core/filters';
-import { calculatePriceProbabilities } from '../../core/probability';
-import { config } from '../../config';
+import { getDataSource } from '@/data-sources';
+import { filterOptions } from '@/core/filters';
+import { calculatePriceProbabilities } from '@/core/probability';
+import { config } from '@/config';
 
 export async function probabilities(source: string, instrument: string, expiration: string) {
   const dataSource = getDataSource(source, instrument);

@@ -1,5 +1,5 @@
 
-import { OptionData } from '../types/global';
+import { OptionData } from '@/types/global';
 
 export interface DataSource {
   getOptionChain(instrument: string, expiration: string): Promise<OptionData[]>;

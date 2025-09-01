@@ -2,10 +2,9 @@
   "name": "risk-ratio",
   "version": "1.0.0",
   "main": "index.js",
-  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cli": "ts-node src/cli/main.ts"
+    "cli": "ts-node -r tsconfig-paths/register src/cli/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +15,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "tsconfig-paths": "^4.2.0"
   }
 }

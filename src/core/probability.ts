@@ -1,6 +1,6 @@
 
-import { OptionData, PriceProbability } from '../types/global';
-import { logNormalPdf } from '../utils/math';
+import { OptionData, PriceProbability } from '@/types/global';
+import { logNormalPdf } from '@/utils/math';
 
 export function calculatePriceProbabilities(
   options: OptionData[],
