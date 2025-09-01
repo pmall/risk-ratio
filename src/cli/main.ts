@@ -24,12 +24,12 @@ async function main() {
     }
     await listExpirations(symbol);
   } else if (command === 'snapshot') {
-    const [symbol] = args.slice(1);
-    if (!symbol) {
-      console.error('Usage: risk-analyzer snapshot <symbol>');
+    const [symbol, expiration] = args.slice(1);
+    if (!symbol || !expiration) {
+      console.error('Usage: risk-analyzer snapshot <symbol> <expiration>');
       process.exit(1);
     }
-    await snapshot(symbol);
+    await snapshot(symbol, expiration);
   } else if (command === 'config') {
     const subCommand = args[1];
     if (subCommand === 'show') {

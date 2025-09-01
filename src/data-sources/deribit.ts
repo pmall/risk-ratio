@@ -39,9 +39,9 @@ const BookSummarySchema = z.object({
   interest_rate: z.number(),
   instrument_name: z.string(),
   high: z.number().nullable(),
-  funding_8h: z.number().nullable(),
-  estimated_delivery_price: z.number().nullable(),
-  current_funding: z.number().nullable(),
+  funding_8h: z.number().nullable().optional(),
+  estimated_delivery_price: z.number().nullable().optional(),
+  current_funding: z.number().nullable().optional(),
   creation_timestamp: z.number(),
   bid_price: z.number().nullable(),
   base_currency: z.string(),
@@ -59,9 +59,23 @@ export class DeribitDataSource implements DataSource {
   private readonly apiUrl = config.deribit.apiUrl;
 
   async getOptionChain(symbol: string, expiration: string): Promise<OptionData[]> {
-    const instruments = await this.fetchInstruments(symbol, 'option');
+    if (symbol.toUpperCase() !== 'SOL') {
+      throw new Error('Only SOL/USDC options are supported for now.');
+    }
+
+    const instruments = await this._fetchSolUsdcInstruments();
+    
+    // Convert YYYY-MM-DD to DDMMMYY (e.g., 2025-09-02 to 2SEP25)
+    const [yearStr, monthStr, dayStr] = expiration.split('-');
+    const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear().toString().slice(-2);
+    const deribitExpirationFormat = `${day}${month}${year}`;
+
     const filteredInstruments = instruments.filter(
-      (instrument) => instrument.instrument_name.includes(expiration)
+      (instrument) => instrument.instrument_name.includes(deribitExpirationFormat)
     );
 
     const optionData: OptionData[] = [];
@@ -85,35 +99,36 @@ export class DeribitDataSource implements DataSource {
   }
 
   async getAvailableExpirations(symbol: string): Promise<string[]> {
-    // This part is still relevant for getting general expirations, but might be empty for SOL
-    const json = await this.fetchFromApi(`/public/get_expirations?currency=${symbol}`);
-    const expirations = ExpirationsSchema.parse(json.result);
+    if (symbol.toUpperCase() !== 'SOL') {
+      throw new Error('Only SOL/USDC options are supported for now.');
+    }
 
-    // New logic to find SOL/USDC options
-    const usdcInstruments = await this.fetchInstruments('USDC', 'option');
-    const solUsdcOptions = usdcInstruments.filter(
-      (instrument) => instrument.base_currency === 'SOL' && instrument.quote_currency === 'USDC'
-    );
+    const solUsdcOptions = await this._fetchSolUsdcInstruments();
 
-    console.log('SOL/USDC Options found under USDC currency:', JSON.stringify(solUsdcOptions, null, 2));
-
-    // For now, let's return expirations from these found instruments
     const solUsdcExpirations = solUsdcOptions.map(instrument => {
       const date = new Date(instrument.expiration_timestamp);
-      // Format as YYYY-MM-DD
       return date.toISOString().split('T')[0];
     });
 
-    // Remove duplicates and sort
     const uniqueExpirations = [...new Set(solUsdcExpirations)].sort();
 
     return uniqueExpirations;
   }
 
   async getCurrentPrice(symbol: string): Promise<number> {
-    const json = await this.fetchFromApi(`/public/get_index_price?index_name=${symbol.toLowerCase()}_usd`);
+    if (symbol.toUpperCase() !== 'SOL') {
+      throw new Error('Only SOL/USDC index price is supported for now.');
+    }
+    const json = await this.fetchFromApi(`/public/get_index_price?index_name=sol_usdc`);
     const indexPrice = IndexPriceSchema.parse(json.result);
     return indexPrice.index_price;
+  }
+
+  private async _fetchSolUsdcInstruments() {
+    const usdcInstruments = await this.fetchInstruments('USDC', 'option');
+    return usdcInstruments.filter(
+      (instrument) => instrument.base_currency === 'SOL' && instrument.quote_currency === 'USDC'
+    );
   }
 
   private async fetchInstruments(currency: string, kind: 'option' | 'future') {
