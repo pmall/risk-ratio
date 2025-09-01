@@ -1,5 +1,7 @@
 
 import { analyze } from './commands/analyze';
+import { listExpirations } from './commands/list-expirations';
+
 
 async function main() {
   const args = process.argv.slice(2);
@@ -12,6 +14,13 @@ async function main() {
       process.exit(1);
     }
     await analyze(symbol, expiration);
+  } else if (command === 'list-expirations') {
+    const [symbol] = args.slice(1);
+    if (!symbol) {
+      console.error('Usage: risk-analyzer list-expirations <symbol>');
+      process.exit(1);
+    }
+    await listExpirations(symbol);
   } else {
     console.error(`Unknown command: ${command}`);
     process.exit(1);
