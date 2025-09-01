@@ -54,7 +54,7 @@ const IndexPriceSchema = z.object({
   index_name: z.string(),
 });
 
-const ExpirationsSchema = z.array(z.number());
+const ExpirationsSchema = z.record(z.string(), z.object({ option: z.array(z.string()), future: z.array(z.string()) }));
 
 export class DeribitDataSource implements DataSource {
   private readonly apiUrl = config.deribit.apiUrl;
@@ -86,25 +86,25 @@ export class DeribitDataSource implements DataSource {
   }
 
   async getAvailableExpirations(symbol: string): Promise<string[]> {
-    const response = await this.fetchFromApi(`/public/get_expirations?currency=${symbol}`);
-    const expirations = ExpirationsSchema.parse(response.result);
-    return expirations.map((exp) => new Date(exp).toISOString());
+    const json = await this.fetchFromApi(`/public/get_expirations?currency=${symbol}`);
+    const expirations = ExpirationsSchema.parse(json.result);
+    return expirations[symbol.toLowerCase()].option;
   }
 
   async getCurrentPrice(symbol: string): Promise<number> {
-    const response = await this.fetchFromApi(`/public/get_index_price?index_name=${symbol.toLowerCase()}_usd`);
-    const indexPrice = IndexPriceSchema.parse(response.result);
+    const json = await this.fetchFromApi(`/public/get_index_price?index_name=${symbol.toLowerCase()}_usd`);
+    const indexPrice = IndexPriceSchema.parse(json.result);
     return indexPrice.index_price;
   }
 
   private async fetchInstruments(currency: string, kind: 'option' | 'future') {
-    const response = await this.fetchFromApi(`/public/get_instruments?currency=${currency}&kind=${kind}`);
-    return z.array(InstrumentSchema).parse(response.result);
+    const json = await this.fetchFromApi(`/public/get_instruments?currency=${currency}&kind=${kind}`);
+    return z.array(InstrumentSchema).parse(json.result);
   }
 
   private async fetchBookSummary(instrumentName: string) {
-    const response = await this.fetchFromApi(`/public/get_book_summary_by_instrument?instrument_name=${instrumentName}`);
-    const result = z.array(BookSummarySchema).parse(response.result);
+    const json = await this.fetchFromApi(`/public/get_book_summary_by_instrument?instrument_name=${instrumentName}`);
+    const result = z.array(BookSummarySchema).parse(json.result);
     return result[0] ?? null;
   }
 

@@ -1,7 +1,7 @@
 
-import { DeribitDataSource } from '../data-sources/deribit';
-import { filterOptions } from '../core/filters';
-import { calculatePriceProbabilities } from '../core/probability';
+import { DeribitDataSource } from '../../data-sources/deribit';
+import { filterOptions } from '../../core/filters';
+import { calculatePriceProbabilities } from '../../core/probability';
 
 export async function analyze(symbol: string, expiration: string) {
   const dataSource = new DeribitDataSource();
@@ -45,7 +45,7 @@ export async function analyze(symbol: string, expiration: string) {
   }
 
   const totalProbability = priceProbabilities.reduce(
-    (sum, p) => sum + p.probability,
+    (sum: number, p: { probability: number }) => sum + p.probability,
     0
   );
 
