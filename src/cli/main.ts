@@ -1,6 +1,7 @@
 
 import { analyze } from './commands/analyze';
 import { listExpirations } from './commands/list-expirations';
+import { snapshot } from './commands/snapshot';
 
 
 async function main() {
@@ -21,6 +22,13 @@ async function main() {
       process.exit(1);
     }
     await listExpirations(symbol);
+  } else if (command === 'snapshot') {
+    const [symbol] = args.slice(1);
+    if (!symbol) {
+      console.error('Usage: risk-analyzer snapshot <symbol>');
+      process.exit(1);
+    }
+    await snapshot(symbol);
   } else {
     console.error(`Unknown command: ${command}`);
     process.exit(1);
