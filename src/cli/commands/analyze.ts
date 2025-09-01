@@ -16,6 +16,16 @@ export async function analyze(symbol: string, expiration: string) {
   console.log(`Current Price: ${currentPrice.toFixed(2)}`);
   console.log(`Total Options: ${options.length}`);
 
+  const filteredOptions = filterOptions(options, currentPrice, {
+    minVolume: 0,
+    maxBidAskSpread: 1000000, // Set to a very large number to effectively disable for now
+    minOpenInterest: 0,
+    minIv: 0.01,
+    maxIv: 500.0, // Increased maxIv to accommodate percentage values
+  });
+
+  console.log(`Filtered Options: ${filteredOptions.length}`);
+
   const priceProbabilities = calculatePriceProbabilities(
     filteredOptions,
     currentPrice,
