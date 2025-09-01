@@ -68,17 +68,13 @@ export class DeribitDataSource implements DataSource {
   async getOptionChain(instrument: string, expiration: string): Promise<OptionData[]> {
     const instruments = await this.fetchInstruments(this.baseCurrency, 'option');
 
-    // Convert YYYY-MM-DD to DDMMMYY (e.g., 2025-09-02 to 2SEP25)
-    const [yearStr, monthStr, dayStr] = expiration.split('-');
-    const date = new Date(Number(yearStr), Number(monthStr) - 1, Number(dayStr));
-    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear().toString().slice(-2);
-    const deribitExpirationFormat = `${day}${month}${year}`;
+    const targetDate = new Date(expiration);
+    // Deribit options typically expire at 8 AM UTC
+    targetDate.setUTCHours(8, 0, 0, 0);
+    const targetTimestamp = targetDate.getTime();
 
     const filteredInstruments = instruments.filter(
-      (instrumentData) => instrumentData.instrument_name.includes(deribitExpirationFormat) &&
+      (instrumentData) => instrumentData.expiration_timestamp === targetTimestamp &&
                           instrumentData.base_currency === this.baseCurrency &&
                           instrumentData.quote_currency === this.quoteCurrency
     );
