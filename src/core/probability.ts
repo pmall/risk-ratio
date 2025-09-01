@@ -17,38 +17,20 @@ export function calculatePriceProbabilities(
   const callOptions = options.filter((o) => o.type === 'call');
   const putOptions = options.filter((o) => o.type === 'put');
 
+  // Find the ATM implied volatility
+  let atmIv: number;
+  const atmOption = options.reduce((prev, curr) =>
+    Math.abs(curr.strike - currentPrice) < Math.abs(prev.strike - currentPrice)
+      ? curr
+      : prev
+  );
+  atmIv = atmOption.impliedVolatility;
+
   const probabilities: PriceProbability[] = [];
 
   for (let price = minPrice; price <= maxPrice; price += priceStep) {
-    let iv: number;
-    let ivSource: number;
-
-    if (price > currentPrice) {
-      // Use closest call strike below the target price
-      const closestCall = callOptions
-        .filter((o) => o.strike <= price)
-        .reduce((prev, curr) =>
-          Math.abs(curr.strike - price) < Math.abs(prev.strike - price)
-            ? curr
-            : prev
-        );
-      iv = closestCall.impliedVolatility;
-      ivSource = closestCall.strike;
-    } else {
-      // Use closest put strike above the target price
-      const closestPut = putOptions
-        .filter((o) => o.strike >= price)
-        .reduce((prev, curr) =>
-          Math.abs(curr.strike - price) < Math.abs(prev.strike - price)
-            ? curr
-            : prev
-        );
-      iv = closestPut.impliedVolatility;
-      ivSource = closestPut.strike;
-    }
-
-    const probability = logNormalPdf(price, Math.log(currentPrice), iv);
-    probabilities.push({ price, probability, ivSource });
+    const probability = logNormalPdf(price, Math.log(currentPrice), atmIv);
+    probabilities.push({ price, probability, ivSource: atmOption.strike });
   }
 
   // Normalize probabilities
