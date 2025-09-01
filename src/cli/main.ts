@@ -2,6 +2,7 @@
 import { analyze } from './commands/analyze';
 import { listExpirations } from './commands/list-expirations';
 import { snapshot } from './commands/snapshot';
+import { showConfig, setConfig } from './commands/config';
 
 
 async function main() {
@@ -29,6 +30,21 @@ async function main() {
       process.exit(1);
     }
     await snapshot(symbol);
+  } else if (command === 'config') {
+    const subCommand = args[1];
+    if (subCommand === 'show') {
+      showConfig();
+    } else if (subCommand === 'set') {
+      const [key, value] = args.slice(2);
+      if (!key || !value) {
+        console.error('Usage: risk-analyzer config set <key> <value>');
+        process.exit(1);
+      }
+      setConfig(key, value);
+    } else {
+      console.error(`Unknown config command: ${subCommand}`);
+      process.exit(1);
+    }
   } else {
     console.error(`Unknown command: ${command}`);
     process.exit(1);

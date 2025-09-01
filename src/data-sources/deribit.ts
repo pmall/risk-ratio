@@ -51,7 +51,6 @@ const BookSummarySchema = z.object({
 
 const IndexPriceSchema = z.object({
   index_price: z.number(),
-  index_name: z.string(),
 });
 
 const ExpirationsSchema = z.record(z.string(), z.object({ option: z.array(z.string()), future: z.array(z.string()) }));
