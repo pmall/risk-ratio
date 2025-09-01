@@ -34,13 +34,15 @@ export async function analyze(symbol: string, expiration: string) {
   );
 
   console.log('\nPrice Probability Distribution:');
-  console.log('Price    Probability    Cumulative');
+  console.log('Price    Probability    Cumulative (Asc)    Cumulative (Desc)');
 
-  let cumulative = 0;
-  for (const p of priceProbabilities) {
-    cumulative += p.probability;
+  let cumulativeAsc = 0;
+  for (let i = 0; i < priceProbabilities.length; i++) {
+    const p = priceProbabilities[i];
+    cumulativeAsc += p.probability;
+    const cumulativeDesc = priceProbabilities.slice(i).reduce((sum, prob) => sum + prob.probability, 0);
     console.log(
-      `${p.price.toFixed(2).padEnd(8)} ${p.probability.toFixed(4).padEnd(14)} ${cumulative.toFixed(4)}`
+      `${p.price.toFixed(2).padEnd(8)} ${p.probability.toFixed(4).padEnd(14)} ${cumulativeAsc.toFixed(4).padEnd(17)} ${cumulativeDesc.toFixed(4)}`
     );
   }
 
