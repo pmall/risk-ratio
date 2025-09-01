@@ -9,7 +9,10 @@ export interface OptionData {
   askPrice: number;
   lastPrice: number;
   expiration: string;
+  instrument_name: string;
 }
+
+export type OptionSide = 'buy' | 'sell';
 
 export interface PriceProbability {
   price: number;

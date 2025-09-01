@@ -92,6 +92,7 @@ export class DeribitDataSource implements DataSource {
           askPrice: bookSummary.ask_price ?? 0,
           lastPrice: bookSummary.last ?? 0,
           expiration: new Date(instrument.expiration_timestamp).toISOString(),
+          instrument_name: instrument.instrument_name,
         });
       }
     }

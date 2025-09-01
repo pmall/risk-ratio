@@ -15,14 +15,6 @@ export function filterOptions(
   qualityFilters: QualityFilters
 ): OptionData[] {
   return options.filter((option) => {
-    // Moneyness-based filtering
-    if (option.strike > currentPrice && option.type === 'put') {
-      return false;
-    }
-    if (option.strike < currentPrice && option.type === 'call') {
-      return false;
-    }
-
     // Quality filters
     if (option.volume < qualityFilters.minVolume) {
       return false;
@@ -31,7 +23,7 @@ export function filterOptions(
       return false;
     }
     const bidAskSpread = (option.askPrice - option.bidPrice) / option.askPrice;
-    if (bidAskSpread > qualityFilters.maxBidAskSpread) {
+    if (option.askPrice > 0 && bidAskSpread > qualityFilters.maxBidAskSpread) {
       return false;
     }
     if (

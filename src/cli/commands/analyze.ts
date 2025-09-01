@@ -13,18 +13,8 @@ export async function analyze(symbol: string, expiration: string) {
     dataSource.getCurrentPrice(symbol),
   ]);
 
-  console.log(`Current Price: $${currentPrice.toFixed(2)}`);
+  console.log(`Current Price: ${currentPrice.toFixed(2)}`);
   console.log(`Total Options: ${options.length}`);
-
-  const filteredOptions = filterOptions(options, currentPrice, {
-    minVolume: 0,
-    maxBidAskSpread: 0.5,
-    minOpenInterest: 0,
-    minIv: 0.01,
-    maxIv: 5.0,
-  });
-
-  console.log(`Filtered Options: ${filteredOptions.length}`);
 
   const priceProbabilities = calculatePriceProbabilities(
     filteredOptions,
