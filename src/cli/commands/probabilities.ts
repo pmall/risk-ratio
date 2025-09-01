@@ -9,15 +9,12 @@ export async function probabilities(source: string, instrument: string, expirati
   console.log(`Filtered Options: ${result.filteredOptionsCount}`);
 
   console.log('\nPrice Probability Distribution:');
-  console.log('Price    Probability    Cumulative (Asc)    Cumulative (Desc)');
+  console.log('Price    P(<=K)    1-P(<=K)'); // Removed P(step) header
 
-  let cumulativeAsc = 0;
   for (let i = 0; i < result.priceProbabilities.length; i++) {
     const p = result.priceProbabilities[i];
-    cumulativeAsc += p.probability;
-    const cumulativeDesc = result.priceProbabilities.slice(i).reduce((sum, prob) => sum + prob.probability, 0);
     console.log(
-      `${p.price.toFixed(2).padEnd(8)} ${p.probability.toFixed(4).padEnd(14)} ${cumulativeAsc.toFixed(4).padEnd(17)} ${cumulativeDesc.toFixed(4)}`
+      `${p.price.toFixed(2).padEnd(8)} ${p.cdfValue.toFixed(4).padEnd(10)} ${(1 - p.cdfValue).toFixed(4)}` // Display cdfValue and 1 - cdfValue
     );
   }
 

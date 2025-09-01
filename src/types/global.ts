@@ -16,7 +16,8 @@ export type OptionSide = 'buy' | 'sell';
 
 export interface PriceProbability {
   price: number;
-  probability: number;
+  probability: number; // This will be the step probability
+  cdfValue: number; // This will be P(Price <= K)
   ivSource: number;  // Strike price used for IV
 }
 
