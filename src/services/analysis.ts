@@ -2,7 +2,7 @@ import { getDataSource } from '@/data-sources';
 import { filterOptions } from '@/core/filters';
 import { calculatePriceProbabilities } from '@/core/probability';
 import { config } from '@/config';
-import { PriceProbability, OptionData } from '@/types/global'; // Added OptionData
+import { PriceProbability, OptionData } from '@/types/global';
 
 export interface ProbabilisticAnalysisResult {
   currentPrice: number;
@@ -63,8 +63,19 @@ export async function getOptionChainSnapshot(
   expiration: string
 ): Promise<OptionData[]> {
   const dataSource = getDataSource(source, instrument);
+  // Fetch current price to use in filtering
+  const currentPrice = await dataSource.getCurrentPrice(instrument);
   const optionChain = await dataSource.getOptionChain(instrument, expiration);
-  return optionChain;
+
+  const filteredOptionChain = filterOptions(optionChain, currentPrice, {
+    minVolume: 0,
+    maxBidAskSpread: config.maxBidAskSpread,
+    minOpenInterest: 0,
+    minIv: 0.01,
+    maxIv: config.maxIv,
+  });
+
+  return filteredOptionChain;
 }
 
 export async function getAvailableExpirationsList(
