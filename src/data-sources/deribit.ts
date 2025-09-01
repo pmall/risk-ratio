@@ -85,9 +85,29 @@ export class DeribitDataSource implements DataSource {
   }
 
   async getAvailableExpirations(symbol: string): Promise<string[]> {
+    // This part is still relevant for getting general expirations, but might be empty for SOL
     const json = await this.fetchFromApi(`/public/get_expirations?currency=${symbol}`);
     const expirations = ExpirationsSchema.parse(json.result);
-    return expirations[symbol.toLowerCase()].option;
+
+    // New logic to find SOL/USDC options
+    const usdcInstruments = await this.fetchInstruments('USDC', 'option');
+    const solUsdcOptions = usdcInstruments.filter(
+      (instrument) => instrument.base_currency === 'SOL' && instrument.quote_currency === 'USDC'
+    );
+
+    console.log('SOL/USDC Options found under USDC currency:', JSON.stringify(solUsdcOptions, null, 2));
+
+    // For now, let's return expirations from these found instruments
+    const solUsdcExpirations = solUsdcOptions.map(instrument => {
+      const date = new Date(instrument.expiration_timestamp);
+      // Format as YYYY-MM-DD
+      return date.toISOString().split('T')[0];
+    });
+
+    // Remove duplicates and sort
+    const uniqueExpirations = [...new Set(solUsdcExpirations)].sort();
+
+    return uniqueExpirations;
   }
 
   async getCurrentPrice(symbol: string): Promise<number> {
