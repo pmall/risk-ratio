@@ -1,5 +1,5 @@
 
-import { analyze } from './commands/analyze';
+import { probabilities } from './commands/probabilities';
 import { listExpirations } from './commands/list-expirations';
 import { snapshot } from './commands/snapshot';
 import { showConfig, setConfig } from './commands/config';
@@ -9,13 +9,13 @@ async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
 
-  if (command === 'analyze') {
+  if (command === 'probabilities') {
     const [source, instrument, expiration] = args.slice(1);
     if (!source || !instrument || !expiration) {
-      console.error('Usage: risk-analyzer analyze <source> <instrument> <expiration>');
+      console.error('Usage: risk-analyzer probabilities <source> <instrument> <expiration>');
       process.exit(1);
     }
-    await analyze(source, instrument, expiration);
+    await probabilities(source, instrument, expiration);
   } else if (command === 'list-expirations') {
     const [source, instrument] = args.slice(1);
     if (!source || !instrument) {

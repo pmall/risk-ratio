@@ -3,7 +3,7 @@ import { getDataSource } from '../../data-sources';
 import { filterOptions } from '../../core/filters';
 import { calculatePriceProbabilities } from '../../core/probability';
 
-export async function analyze(source: string, instrument: string, expiration: string) {
+export async function probabilities(source: string, instrument: string, expiration: string) {
   const dataSource = getDataSource(source, instrument);
 
   console.log(`Analyzing ${instrument} options for expiration: ${expiration} from ${source}`);
