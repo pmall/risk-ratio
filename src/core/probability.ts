@@ -1,5 +1,6 @@
 import { OptionData, PriceProbability } from '@/types/global';
 import { norm_cdf } from '@/utils/math';
+import { polynomialFit } from '@/utils/regression';
 
 export function calculatePriceProbabilities(
   options: OptionData[],
@@ -16,9 +17,21 @@ export function calculatePriceProbabilities(
     T = 0.000001; // Avoid division by zero or negative sqrt
   }
 
+  // Prepare data for volatility smile fitting
+  const fitPoints = options.map((option) => ({
+    x: Math.log(option.strike / currentPrice), // Log-moneyness
+    y: option.impliedVolatility / 100, // IV
+  }));
+
+  // Get the coefficients for the smoothed volatility curve
+  const vol_model = polynomialFit(fitPoints);
+
   const probabilities = options
     .map((option) => {
-      const iv = option.impliedVolatility / 100;
+      const k = Math.log(option.strike / currentPrice);
+      // Use the smoothed IV from our model
+      const iv = vol_model.a * k * k + vol_model.b * k + vol_model.c;
+
       const sigma_T = iv * Math.sqrt(T);
       const Z = Math.log(option.strike / currentPrice) / sigma_T;
       const cdf_value = norm_cdf(Z);
