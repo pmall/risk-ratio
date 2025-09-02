@@ -9,12 +9,12 @@ export async function probabilities(source: string, instrument: string, expirati
   console.log(`Filtered Options: ${result.filteredOptionsCount}`);
 
   console.log('\nPrice Probability Distribution:');
-  console.log('Price    P(<=K)    1-P(<=K)'); // Removed P(step) header
+  console.log('Strike   P(<=K)    1-P(<=K)');
 
   for (let i = 0; i < result.priceProbabilities.length; i++) {
     const p = result.priceProbabilities[i];
     console.log(
-      `${p.price.toFixed(2).padEnd(8)} ${p.cdfValue.toFixed(4).padEnd(10)} ${(1 - p.cdfValue).toFixed(4)}` // Display cdfValue and 1 - cdfValue
+      `${p.price.toFixed(2).padEnd(8)} ${p.cdfValue.toFixed(4).padEnd(10)} ${(1 - p.cdfValue).toFixed(4)}`
     );
   }
 

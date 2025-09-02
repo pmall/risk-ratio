@@ -1,8 +1,8 @@
 import { getDataSource } from '@/data-sources';
 import { filterOptions } from '@/core/filters';
 import { calculatePriceProbabilities } from '@/core/probability';
-import { config } from '@/config';
 import { PriceProbability, OptionData } from '@/types/global';
+import { config } from '@/config';
 
 export interface ProbabilisticAnalysisResult {
   currentPrice: number;
@@ -38,9 +38,7 @@ export async function getProbabilisticPriceDistribution(
 
   const priceProbabilities = calculatePriceProbabilities(
     filteredOptions,
-    currentPrice,
-    config.priceStep,
-    config.priceRangeExtensionFactor
+    currentPrice
   );
 
   

@@ -4,24 +4,7 @@ This project provides a TypeScript library and CLI tool designed to compute prob
 
 ## 🎯 Core Concept
 
-Traditional options risk analysis often relies on simplified models. This tool leverages the collective wisdom embedded in implied volatility to provide more accurate, probabilistic assessments of price movements and position risks.
-
-### The Algorithm Flow
-
-1.  **Data Acquisition**: Fetches complete options chain for a given expiration date from Deribit (SOL/USDC).
-2.  **Option Filtering**: Keeps only relevant options based on quality metrics (volume, bid-ask spread, IV sanity checks).
-3.  **IV Mapping**: Assigns implied volatility to discrete price points using actual market data.
-4.  **Probability Computation**: Converts IV to probability distributions using log-normal assumptions.
-5.  **Output Generation**: Produces a discrete probability distribution for all possible prices.
-
-### Key Principle: No IV Interpolation
-
-This project strictly avoids interpolating implied volatility between strikes. Instead, it uses the actual market-derived IV from the closest available option:
-
-*   **For calls**: Uses the IV from the closest strike *below* the target price.
-*   **For puts**: Uses the IV from the closest strike *above* the target price.
-
-This conservative approach ensures that the probabilities reflect real market data, not artificial smoothing.
+This tool leverages the collective wisdom embedded in implied volatility to provide more accurate, probabilistic assessments of price movements and position risks.
 
 ## ✨ Features
 
@@ -52,7 +35,7 @@ This CLI tool provides the following commands:
 
 ## ⚙️ Configuration
 
-Application-wide configuration values are defined in `src/config.ts`. This file centralizes settings for API endpoints, filtering options, and price distribution parameters.
+Application-wide configuration values are defined in `src/config.ts`. This file centralizes settings for API endpoints and filtering options.
 
 ```typescript
 export const config = {
@@ -61,8 +44,6 @@ export const config = {
   },
   maxBidAskSpread: 1,             // Maximum allowed bid-ask spread for options to be considered
   maxIv: 200,                     // Maximum implied volatility for options to be considered
-  priceStep: 1,                   // The increment for price points in the probability distribution
-  priceRangeExtensionFactor: 1.2, // Factor to extend the price range beyond current price for distribution calculation
 };
 ```
 
@@ -79,19 +60,19 @@ All commands are run using `npm run cli -- <command> <arguments>`.
     Example Output:
     ```
     Available expirations for SOL-USDC from deribit:
-    2025-09-02
     2025-09-03
+    2025-09-04
     2025-09-05
     ...
     ```
 
-2.  **Get a snapshot of the options chain for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-02):**
+2.  **Get a snapshot of the options chain for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-03):**
     ```bash
-    npm run cli -- snapshot deribit SOL-USDC 2025-09-02
+    npm run cli -- snapshot deribit SOL-USDC 2025-09-03
     ```
     Example Output (truncated):
     ```
-    Option chain for SOL-USDC on 2025-09-02 from deribit:
+    Option chain for SOL-USDC on 2025-09-03 from deribit:
     {
       strike: 176,
       type: 'call',
@@ -101,31 +82,29 @@ All commands are run using `npm run cli -- <command> <arguments>`.
       bidPrice: 0,
       askPrice: 0,
       lastPrice: 0,
-      expiration: '2025-09-02T08:00:00.000Z',
-      instrument_name: 'SOL_USDC-2SEP25-176-C'
+      expiration: '2025-09-03T08:00:00.000Z',
+      instrument_name: 'SOL_USDC-3SEP25-176-C'
     }
     ...
     ```
 
-3.  **Analyze and list prices and their probabilities for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-02):**
+3.  **Analyze and list prices and their probabilities for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-03):**
     ```bash
-    npm run cli -- probabilities deribit SOL-USDC 2025-09-02
+    npm run cli -- probabilities deribit SOL-USDC 2025-09-03
     ```
     Example Output (truncated):
     ```
-    Analyzing SOL-USDC options for expiration: 2025-09-02 from deribit:
+    Analyzing SOL-USDC options for expiration: 2025-09-03 from deribit:
     Current Price: 198.76
     Total Options: 104
     Filtered Options: 104
 
     Price Probability Distribution:
-    Price    Probability    Cumulative (Asc)    Cumulative (Desc)
-    100.00   0.0055         0.0055            1.0000
-    101.00   0.0055         0.0110            0.9945
+    Strike   P(<=K)    1-P(<=K)
+    100.00   0.0055    0.9945
+    101.00   0.0055    0.9945
     ...
-    408.00   0.0014         1.0000            0.0014
-
-    Total Probability: 1.0000
+    408.00   0.9986    0.0014
     ```
 
 ## 💻 Technology Stack
@@ -142,5 +121,3 @@ This project is designed with extensibility in mind. Future phases include:
 *   **Position Risk Calculation**: Implement expected P&L, max loss, and profit probability for specific options positions.
 *   **Web Interface Integration**: Develop a Next.js-based web interface with interactive charts and dashboards.
 *   **Additional Data Sources**: Integrate with other exchanges like Binance, Interactive Brokers, etc.
-
-This specification provides a comprehensive overview of the project, its core principles, and its current capabilities.

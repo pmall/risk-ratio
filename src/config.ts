@@ -9,6 +9,4 @@ export const config = {
   },
   maxBidAskSpread: 1,
   maxIv: 200,
-  priceStep: 1,
-  priceRangeExtensionFactor: 1.2,
 };
