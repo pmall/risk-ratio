@@ -1,6 +1,6 @@
 import { getDataSource } from '@/data-sources';
 import { filterOptions } from '@/core/filters';
-import { calculatePriceProbabilities } from '@/core/probability';
+import { getVolatilityModel, getProbabilityForPrice } from '@/core/probability';
 import { PriceProbability } from '@/types/global';
 
 export interface ProbabilisticAnalysisResult {
@@ -28,10 +28,19 @@ export async function getProbabilisticPriceDistribution(
 
   const filteredOptionsCount = filteredOptions.length;
 
-  const priceProbabilities = calculatePriceProbabilities(
-    filteredOptions,
-    currentPrice
-  );
+  const volatilityModel = getVolatilityModel(filteredOptions, currentPrice);
+
+  const priceProbabilities = filteredOptions
+    .map((option) => {
+      const cdf_value = getProbabilityForPrice(option.strike, currentPrice, volatilityModel);
+
+      return {
+        price: option.strike,
+        cdfValue: cdf_value,
+        ivSource: option.strike,
+      };
+    })
+    .sort((a, b) => a.price - b.price);
 
   return {
     currentPrice,

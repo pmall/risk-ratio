@@ -2,12 +2,14 @@ import { OptionData, PriceProbability } from '@/types/global';
 import { norm_cdf } from '@/utils/math';
 import { polynomialFit } from '@/utils/regression';
 
-export function calculatePriceProbabilities(
-  options: OptionData[],
-  currentPrice: number
-): PriceProbability[] {
+export interface VolatilityModel {
+  vol_model: { a: number; b: number; c: number };
+  T: number;
+}
+
+export function getVolatilityModel(options: OptionData[], currentPrice: number): VolatilityModel {
   if (options.length === 0) {
-    return [];
+    throw new Error("Options data cannot be empty for volatility model calculation.");
   }
 
   const expirationTimestamp = new Date(options[0].expiration).getTime();
@@ -17,32 +19,34 @@ export function calculatePriceProbabilities(
     T = 0.000001; // Avoid division by zero or negative sqrt
   }
 
-  // Prepare data for volatility smile fitting
   const fitPoints = options.map((option) => ({
     x: Math.log(option.strike / currentPrice), // Log-moneyness
     y: option.impliedVolatility / 100, // IV
   }));
 
-  // Get the coefficients for the smoothed volatility curve
   const vol_model = polynomialFit(fitPoints);
 
-  const probabilities = options
-    .map((option) => {
-      const k = Math.log(option.strike / currentPrice);
-      // Use the smoothed IV from our model
-      const iv = vol_model.a * k * k + vol_model.b * k + vol_model.c;
-
-      const sigma_T = iv * Math.sqrt(T);
-      const Z = Math.log(option.strike / currentPrice) / sigma_T;
-      const cdf_value = norm_cdf(Z);
-
-      return {
-        price: option.strike,
-        cdfValue: cdf_value,
-        ivSource: option.strike,
-      };
-    })
-    .sort((a, b) => a.price - b.price);
-
-  return probabilities;
+  return { vol_model, T };
 }
+
+export function getProbabilityForPrice(
+  price: number,
+  currentPrice: number,
+  volatilityModel: VolatilityModel
+): number {
+  const { vol_model, T } = volatilityModel;
+
+  const k = Math.log(price / currentPrice);
+  const iv = vol_model.a * k * k + vol_model.b * k + vol_model.c;
+
+  // Ensure IV is not negative or too small for sqrt
+  const safeIv = Math.max(0.0001, iv); // Ensure IV is positive and not too small
+
+  const sigma_T = safeIv * Math.sqrt(T);
+  const Z = Math.log(price / currentPrice) / sigma_T;
+  const cdf_value = norm_cdf(Z);
+
+  return cdf_value;
+}
+
+
