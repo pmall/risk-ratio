@@ -1,4 +1,4 @@
-import { getAvailableExpirationsList } from '@/services/analysis';
+import { getAvailableExpirationsList } from '@/services/listExpirations.service';
 
 export async function listExpirations(source: string, instrument: string) {
   const expirations = await getAvailableExpirationsList(source, instrument);

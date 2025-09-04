@@ -1,4 +1,4 @@
-import { getOptionChainSnapshot } from '@/services/analysis';
+import { getOptionChainSnapshot } from '@/services/snapshot.service';
 
 export async function snapshot(source: string, instrument: string, expiration: string) {
   const optionChain = await getOptionChainSnapshot(source, instrument, expiration);

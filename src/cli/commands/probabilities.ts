@@ -1,4 +1,4 @@
-import { getProbabilisticPriceDistribution } from '@/services/analysis';
+import { getProbabilisticPriceDistribution } from '@/services/probabilities.service';
 
 export async function probabilities(source: string, instrument: string, expiration: string) {
   const result = await getProbabilisticPriceDistribution(source, instrument, expiration);
