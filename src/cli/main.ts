@@ -7,8 +7,8 @@ import { configCommand } from '@/cli/commands/config';
 const program = new Command();
 
 program
-  .name('risk-analyzer')
-  .description('CLI for analyzing options risk and reward')
+  .name('spread-scanner')
+  .description('CLI tool for analyzing options spreads, calculating probabilities, and providing market data snapshots')
   .version('1.0.0');
 
 program.addCommand(probabilitiesCommand);

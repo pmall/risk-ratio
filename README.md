@@ -1,6 +1,6 @@
-# Options Risk Analytics - Probabilistic Price Distribution
+# Spread Scanner
 
-This project provides a TypeScript library and CLI tool designed to compute probabilistic risk ratios for options positions. It achieves this by analyzing implied volatility across option chains and transforming this market data into accurate probability distributions of underlying asset prices at expiration.
+This is a CLI tool designed to help analyze options spreads, calculate probabilities, and provide snapshots of market data.
 
 ## 🎯 Core Concept
 
@@ -10,9 +10,9 @@ This tool leverages the collective wisdom embedded in implied volatility to prov
 
 This CLI tool provides the following commands:
 
-*   `list-expirations`: Lists available expiration dates for a given instrument.
-*   `snapshot`: Fetches and displays the raw options chain data for a specific instrument and expiration.
-*   `probabilities`: Computes and displays the probabilistic price distribution for an underlying asset at a given expiration.
+- `list-expirations`: Lists available expiration dates for a given instrument.
+- `snapshot`: Fetches and displays the raw options chain data for a specific instrument and expiration.
+- `probabilities`: Computes and displays the probabilistic price distribution for an underlying asset at a given expiration.
 
 ## 🔬 Methodology
 
@@ -29,7 +29,7 @@ This method allows for the accurate pricing of any strike price, not just those 
 1.  **Clone the repository:**
     ```bash
     git clone <repository-url>
-    cd risk-ratio
+    cd spread-scanner
     ```
 2.  **Install dependencies:**
     ```bash
@@ -50,10 +50,8 @@ Application-wide configuration values are defined in `src/config.ts`. This file 
 ```typescript
 export const config = {
   deribit: {
-    apiUrl: process.env.DERIBIT_API_URL || 'https://www.deribit.com/api/v2',
+    apiUrl: process.env.DERIBIT_API_URL || "https://www.deribit.com/api/v2",
   },
-  maxBidAskSpread: 1,             // Maximum allowed bid-ask spread for options to be considered
-  maxIv: 200,                     // Maximum implied volatility for options to be considered
 };
 ```
 
@@ -64,10 +62,13 @@ You can modify these values directly in `src/config.ts` to adjust the behavior o
 All commands are run using `npm run cli -- <command> <arguments>`.
 
 1.  **List available expirations for SOL/USDC on Deribit:**
+
     ```bash
     npm run cli -- list-expirations deribit SOL-USDC
     ```
+
     Example Output:
+
     ```
     Available expirations for SOL-USDC from deribit:
     2025-09-03
@@ -77,10 +78,13 @@ All commands are run using `npm run cli -- <command> <arguments>`.
     ```
 
 2.  **Get a snapshot of the options chain for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-03):**
+
     ```bash
     npm run cli -- snapshot deribit SOL-USDC 2025-09-03
     ```
+
     Example Output (truncated):
+
     ```
     Option chain for SOL-USDC on 2025-09-03 from deribit:
     {
@@ -99,10 +103,13 @@ All commands are run using `npm run cli -- <command> <arguments>`.
     ```
 
 3.  **Analyze and list prices and their probabilities for SOL/USDC on Deribit for a specific expiration date (e.g., 2025-09-03):**
+
     ```bash
     npm run cli -- probabilities deribit SOL-USDC 2025-09-03
     ```
+
     Example Output (truncated):
+
     ```
     Analyzing SOL-USDC options for expiration: 2025-09-03 from deribit:
     Current Price: 175.20
@@ -123,15 +130,14 @@ All commands are run using `npm run cli -- <command> <arguments>`.
 
 ## 💻 Technology Stack
 
-*   **Language**: TypeScript (strict type checking)
-*   **Runtime**: Node.js (for CLI)
-*   **Dependencies**: `dotenv`, `zod`, built-in `fetch`
-*   **Package Manager**: npm
+- **Language**: TypeScript (strict type checking)
+- **Runtime**: Node.js (for CLI)
+- **Package Manager**: npm
 
 ## 🔮 Future Extensions
 
 This project is designed with extensibility in mind. Future phases include:
 
-*   **Position Risk Calculation**: Implement expected P&L, max loss, and profit probability for specific options positions.
-*   **Web Interface Integration**: Develop a Next.js-based web interface with interactive charts and dashboards.
-*   **Additional Data Sources**: Integrate with other exchanges like Binance, Interactive Brokers, etc.
+- **Position Risk Calculation**: Implement expected P&L, max loss, and profit probability for specific options positions.
+- **Web Interface Integration**: Develop a Next.js-based web interface with interactive charts and dashboards.
+- **Additional Data Sources**: Integrate with other exchanges like Binance, Interactive Brokers, etc.
