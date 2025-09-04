@@ -26,13 +26,7 @@ export async function getProbabilisticPriceDistribution(
 
   const totalOptions = options.length;
 
-  const filteredOptions = filterOptions(options, currentPrice, {
-    minVolume: 0,
-    maxBidAskSpread: config.maxBidAskSpread,
-    minOpenInterest: 0,
-    minIv: 0.01,
-    maxIv: config.maxIv,
-  });
+  const filteredOptions = filterOptions(options, currentPrice);
 
   const filteredOptionsCount = filteredOptions.length;
 
@@ -61,13 +55,7 @@ export async function getOptionChainSnapshot(
   const currentPrice = await dataSource.getCurrentPrice(instrument);
   const optionChain = await dataSource.getOptionChain(instrument, expiration);
 
-  const filteredOptionChain = filterOptions(optionChain, currentPrice, {
-    minVolume: 0,
-    maxBidAskSpread: config.maxBidAskSpread,
-    minOpenInterest: 0,
-    minIv: 0.01,
-    maxIv: config.maxIv,
-  });
+  const filteredOptionChain = filterOptions(optionChain, currentPrice);
 
   return filteredOptionChain;
 }

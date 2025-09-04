@@ -1,32 +1,8 @@
 import { OptionData } from '@/types/global';
 
-export interface QualityFilters {
-  minVolume: number;
-  maxBidAskSpread: number;
-  minOpenInterest: number;
-  minIv: number;
-  maxIv: number;
-}
-
-function passesQualityFilters(option: OptionData, qualityFilters: QualityFilters): boolean {
+function passesQualityFilters(option: OptionData): boolean {
   // Bid and ask must be positive
   if (option.bidPrice <= 0 || option.askPrice <= 0) {
-    return false;
-  }
-  if (option.volume < qualityFilters.minVolume) {
-    return false;
-  }
-  if (option.openInterest < qualityFilters.minOpenInterest) {
-    return false;
-  }
-  const bidAskSpread = (option.askPrice - option.bidPrice) / option.askPrice;
-  if (option.askPrice > 0 && bidAskSpread > qualityFilters.maxBidAskSpread) {
-    return false;
-  }
-  if (
-    option.impliedVolatility < qualityFilters.minIv ||
-    option.impliedVolatility > qualityFilters.maxIv
-  ) {
     return false;
   }
   return true;
@@ -34,8 +10,7 @@ function passesQualityFilters(option: OptionData, qualityFilters: QualityFilters
 
 export function filterOptions(
   options: OptionData[],
-  currentPrice: number,
-  qualityFilters: QualityFilters
+  currentPrice: number
 ): OptionData[] {
   // Step 1: Initial Filtering based on strike price relative to currentPrice
   const callOptions = options.filter(o => o.type === 'call' && o.strike > currentPrice);
@@ -52,7 +27,7 @@ export function filterOptions(
   // Step 2: Tail Filtering for Calls
   let callTailPassed = false;
   for (const option of callOptions) {
-    if (passesQualityFilters(option, qualityFilters)) {
+    if (passesQualityFilters(option)) {
       callTailPassed = true;
     }
     if (callTailPassed) {
@@ -63,7 +38,7 @@ export function filterOptions(
   // Step 2: Tail Filtering for Puts
   let putTailPassed = false;
   for (const option of putOptions) {
-    if (passesQualityFilters(option, qualityFilters)) {
+    if (passesQualityFilters(option)) {
       putTailPassed = true;
     }
     if (putTailPassed) {
