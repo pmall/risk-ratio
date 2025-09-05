@@ -1,5 +1,5 @@
 import { getDataSource } from '@/data-sources';
-import { getVolatilityModel, VolatilityModel } from '@/core/probability';
+import { getVolatilityModel } from '@/core/probability';
 import {
   calculateNetPremium,
   calculateMaxProfitLoss,
@@ -9,6 +9,32 @@ import {
   getSpreadType,
 } from '@/core/spreadCalculations';
 import { SpreadDefinition, SpreadAnalysisResult } from '@/types/global';
+
+export function spreadDefinitionFactory(type: 'call' | 'put', side: 'debit' | 'credit', strikes: [number, number]): SpreadDefinition {
+  const [s1, s2] = strikes;
+
+  let longStrike: number;
+  let shortStrike: number;
+
+  if (type === 'call') {
+    if (side === 'debit') { // Bull Call Spread
+      longStrike = Math.min(s1, s2);
+      shortStrike = Math.max(s1, s2);
+    } else { // Bear Call Spread
+      longStrike = Math.max(s1, s2);
+      shortStrike = Math.min(s1, s2);
+    }
+  } else { // put spread
+    if (side === 'debit') { // Bear Put Spread
+      longStrike = Math.max(s1, s2);
+      shortStrike = Math.min(s1, s2);
+    } else { // Bull Put Spread
+      longStrike = Math.min(s1, s2);
+      shortStrike = Math.max(s1, s2);
+    }
+  }
+  return { type, side, longStrike, shortStrike };
+}
 
 export async function analyzeSpread(
   source: string,
@@ -26,14 +52,10 @@ export async function analyzeSpread(
   ]);
 
   const volatilityModel = getVolatilityModel(optionChain, currentPrice);
+  
+  const spreadDefinition = spreadDefinitionFactory(spreadType, side, strikes);
 
-  const spreadDefinition: SpreadDefinition = {
-    type: spreadType,
-    strikes: strikes,
-    side: side,
-  };
-
-  const netPremium = calculateNetPremium(spreadDefinition, optionChain, side);
+  const netPremium = calculateNetPremium(spreadDefinition, optionChain);
   const { maxProfit, maxLoss } = calculateMaxProfitLoss(spreadDefinition, netPremium);
 
   const expectedPayoff = calculateProbabilisticPayoff(spreadDefinition, volatilityModel, optionChain, currentPrice);
@@ -43,17 +65,12 @@ export async function analyzeSpread(
 
   let riskRewardRatio: number;
     if (side === 'debit') {
-      riskRewardRatio = expectedPayoff / netPremium;
+      riskRewardRatio = expectedPayoff / -netPremium;
     } else { // credit
-      riskRewardRatio = netPremium / expectedPayoff;
+      riskRewardRatio = netPremium / -expectedPayoff;
     }
 
-  let expectedPnL: number;
-  if (side === 'debit') {
-    expectedPnL = expectedPayoff - netPremium;
-  } else { // credit
-    expectedPnL = netPremium + expectedPayoff;
-  }
+  const expectedPnL = expectedPayoff + netPremium;
 
   return {
     netPremium: parseFloat(netPremium.toFixed(2)),
@@ -64,9 +81,10 @@ export async function analyzeSpread(
     probabilityOfProfit: parseFloat(probabilityOfProfit.toFixed(4)),
     breakEvenPrice: parseFloat(breakEvenPrice.toFixed(2)),
     spreadType: spreadTypeName,
-    type: spreadType,
-    side: side,
-    strikes: strikes,
+    type: spreadDefinition.type,
+    side: spreadDefinition.side,
+    longStrike: spreadDefinition.longStrike,
+    shortStrike: spreadDefinition.shortStrike,
     expectedPnL: parseFloat(expectedPnL.toFixed(2)),
   };
 }

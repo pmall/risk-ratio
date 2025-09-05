@@ -28,6 +28,7 @@ analyzeSpreadCommand
     }
     return value;
   })
+  .option('--raw', 'Display raw values for debugging')
   .action(async (source, instrument, expiration, options) => {
     try {
       if (!options.type || !options.strikes || !options.side) {
@@ -53,22 +54,27 @@ analyzeSpreadCommand
         return;
       }
 
+      const displayValue = (value: number) => options.raw ? value : Math.abs(value);
+
       console.log(`--- Spread Analysis for ${result.spreadType} ---`);
       console.log(`Instrument: ${instrument}, Expiration: ${expiration}`);
-      console.log(`Strikes: ${result.strikes[0]}, ${result.strikes[1]}, Type: ${result.type}, Side: ${result.side}`);
-      console.log(`Net Premium: ${result.netPremium}`);
-
+      
       if (result.side === 'debit') {
-        console.log(`Max Profit: ${result.maxReward}`);
-        console.log(`Max Loss: ${result.maxRisk}`);
-        console.log(`Expected Payoff at Expiration: ${result.expectedPayoff}`);
+        console.log(`Strikes: ${result.longStrike}, ${result.shortStrike}, Type: ${result.type}, Side: debit`);
+        console.log(`Net Premium: ${displayValue(result.netPremium)}`);
+        console.log(`Max Profit: ${displayValue(result.maxReward)}`);
+        console.log(`Max Loss: ${displayValue(result.maxRisk)}`);
+        console.log(`Expected Payoff at Expiration: ${displayValue(result.expectedPayoff)}`);
       } else { // credit
-        console.log(`Max Profit: ${result.maxReward}`);
-        console.log(`Max Loss: ${result.maxRisk}`);
-        console.log(`Expected Loss at Expiration: ${-1 * result.expectedPayoff}`);
+          console.log(`Strikes: ${result.shortStrike}, ${result.longStrike}, Type: ${result.type}, Side: credit`);
+        console.log(`Net Premium: ${displayValue(result.netPremium)}`);
+        console.log(`Max Profit: ${displayValue(result.maxReward)}`);
+        console.log(`Max Loss: ${displayValue(result.maxRisk)}`);
+        console.log(`Expected Loss at Expiration: ${displayValue(result.expectedPayoff)}`);
       }
+
       console.log(`Expected PnL: ${result.expectedPnL}`);
-      console.log(`Risk/Reward Ratio: ${Math.abs(result.riskRewardRatio)}`);
+      console.log(`Risk/Reward Ratio: ${result.riskRewardRatio}`);
       console.log(`Probability of Profit: ${(result.probabilityOfProfit * 100).toFixed(2)}%`);
       console.log(`Break-Even Price: ${result.breakEvenPrice}`);
       console.log(`--------------------------------------`);

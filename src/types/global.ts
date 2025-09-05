@@ -18,11 +18,12 @@ export interface PriceProbability {
   ivSource: number;  // Strike price used for IV
 }
 
-export interface SpreadDefinition {
+export type SpreadDefinition = {
   type: 'call' | 'put';
-  strikes: [number, number];
   side: 'debit' | 'credit';
-}
+  longStrike: number;
+  shortStrike: number;
+};
 
 export interface SpreadAnalysisResult {
   netPremium: number;
@@ -35,24 +36,7 @@ export interface SpreadAnalysisResult {
   spreadType: string; // e.g., "Bull Call Spread"
   type: 'call' | 'put';
   side: 'debit' | 'credit';
-  strikes: [number, number];
-  expectedPnL: number;
-}
-
-export interface ScanFilters {
-  maxSpreadWidth?: number;
-  maxDebit?: number;
-  minCredit?: number;
-}
-
-export interface RankedSpread extends SpreadAnalysisResult {
   longStrike: number;
   shortStrike: number;
-}
-
-export interface RankedSpreadsResult {
-  bullCallSpreads: RankedSpread[];
-  bearCallSpreads: RankedSpread[];
-  bullPutSpreads: RankedSpread[];
-  bearPutSpreads: RankedSpread[];
+  expectedPnL: number;
 }
