@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import { probabilitiesCommand } from '@/cli/commands/probabilities';
-import { listExpirationsCommand } from '@/cli/commands/list-expirations';
+import { listExpirationsCommand } from '@/cli/commands/listExpirations';
 import { snapshotCommand } from '@/cli/commands/snapshot';
 import { configCommand } from '@/cli/commands/config';
-import { analyzeSpreadCommand } from '@/cli/commands/analyze-spread';
+import { analyzeSpreadCommand } from '@/cli/commands/analyzeSpread';
 
 const program = new Command();
 

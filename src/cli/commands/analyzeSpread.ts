@@ -60,13 +60,13 @@ analyzeSpreadCommand
       console.log(`Instrument: ${instrument}, Expiration: ${expiration}`);
       
       if (result.side === 'debit') {
-        console.log(`Strikes: ${result.longStrike}, ${result.shortStrike}, Type: ${result.type}, Side: debit`);
+        console.log(`Type: ${result.type}, Side: debit, Long: ${result.longStrike}, Short: ${result.shortStrike}`);
         console.log(`Net Premium: ${displayValue(result.netPremium)}`);
         console.log(`Max Profit: ${displayValue(result.maxReward)}`);
         console.log(`Max Loss: ${displayValue(result.maxRisk)}`);
         console.log(`Expected Payoff at Expiration: ${displayValue(result.expectedPayoff)}`);
       } else { // credit
-          console.log(`Strikes: ${result.shortStrike}, ${result.longStrike}, Type: ${result.type}, Side: credit`);
+          console.log(`Type: ${result.type}, Side: credit, Short: ${result.shortStrike}, Long: ${result.longStrike}`);
         console.log(`Net Premium: ${displayValue(result.netPremium)}`);
         console.log(`Max Profit: ${displayValue(result.maxReward)}`);
         console.log(`Max Loss: ${displayValue(result.maxRisk)}`);
