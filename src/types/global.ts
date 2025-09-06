@@ -18,14 +18,15 @@ export interface PriceProbability {
   ivSource: number;  // Strike price used for IV
 }
 
-export type SpreadDefinition = {
+export type Position = {
   type: 'call' | 'put';
   side: 'debit' | 'credit';
   longStrike: number;
   shortStrike: number;
+  netPremium: number;
 };
 
-export interface SpreadAnalysisResult {
+export interface PositionAnalysisResult {
   netPremium: number;
   maxRisk: number;
   maxReward: number;

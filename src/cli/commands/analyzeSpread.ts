@@ -56,7 +56,7 @@ analyzeSpreadCommand
 
       const displayValue = (value: number) => options.raw ? value : Math.abs(value);
 
-      console.log(`--- Spread Analysis for ${result.spreadType} ---`);
+      console.log(`--- Position Analysis for ${result.spreadType} ---`);
       console.log(`Instrument: ${instrument}, Expiration: ${expiration}`);
       
       if (result.side === 'debit') {

@@ -1,51 +1,37 @@
-import { OptionData, SpreadDefinition } from '@/types/global';
+import { OptionData, Position } from '@/types/global';
 import { VolatilityModel, getProbabilityForPrice } from '@/core/probability';
 
-export function calculateNetPremium(
-  spreadDefinition: SpreadDefinition,
-  optionChain: OptionData[]
-): number {
-  const longLeg = optionChain.find(
-    (opt) => opt.strike === spreadDefinition.longStrike && opt.type === spreadDefinition.type
-  );
-  const shortLeg = optionChain.find(
-    (opt) => opt.strike === spreadDefinition.shortStrike && opt.type === spreadDefinition.type
-  );
+export function calculateMaxProfitLoss(position: Position): { maxProfit: number; maxLoss: number } {
+  const { type, side, longStrike, shortStrike, netPremium } = position;
 
-  if (!longLeg || !shortLeg) {
-    throw new Error('Could not find one or both legs of the spread in the option chain for net premium calculation.');
-  }
-
-  return shortLeg.bidPrice - longLeg.askPrice;
-}
-
-export function calculateMaxProfitLoss(
-  spreadDefinition: SpreadDefinition,
-  netPremium: number
-): { maxProfit: number; maxLoss: number } {
-  if (spreadDefinition.type === 'call') {
-    if (spreadDefinition.side === 'debit') { // Bull Call Spread
-      const strikeDifference = spreadDefinition.shortStrike - spreadDefinition.longStrike;
+  if (type === 'call') {
+    if (side === 'debit') {
+      // Bull Call Spread
+      const strikeDifference = shortStrike - longStrike;
       return {
         maxProfit: strikeDifference + netPremium,
         maxLoss: netPremium,
       };
-    } else { // Bear Call Spread
-      const strikeDifference = spreadDefinition.longStrike - spreadDefinition.shortStrike;
+    } else {
+      // Bear Call Spread
+      const strikeDifference = longStrike - shortStrike;
       return {
         maxProfit: netPremium,
         maxLoss: netPremium - strikeDifference,
       };
     }
-  } else { // put
-    if (spreadDefinition.side === 'debit') { // Bear Put Spread
-      const strikeDifference = spreadDefinition.longStrike - spreadDefinition.shortStrike;
+  } else {
+    // put
+    if (side === 'debit') {
+      // Bear Put Spread
+      const strikeDifference = longStrike - shortStrike;
       return {
         maxProfit: strikeDifference + netPremium,
         maxLoss: netPremium,
       };
-    } else { // Bull Put Spread
-      const strikeDifference = spreadDefinition.shortStrike - spreadDefinition.longStrike;
+    } else {
+      // Bull Put Spread
+      const strikeDifference = shortStrike - longStrike;
       return {
         maxProfit: netPremium,
         maxLoss: netPremium - strikeDifference,
@@ -54,15 +40,16 @@ export function calculateMaxProfitLoss(
   }
 }
 
-export function getSpreadType(spreadDefinition: SpreadDefinition): string {
-  if (spreadDefinition.type === 'call') {
-    if (spreadDefinition.side === 'debit') {
+export function getPositionType(position: Position): string {
+  if (position.type === 'call') {
+    if (position.side === 'debit') {
       return 'Bull Call Spread';
     } else {
       return 'Bear Call Spread';
     }
-  } else { // put spread
-    if (spreadDefinition.side === 'debit') {
+  } else {
+    // put spread
+    if (position.side === 'debit') {
       return 'Bear Put Spread';
     } else {
       return 'Bull Put Spread';
@@ -71,26 +58,24 @@ export function getSpreadType(spreadDefinition: SpreadDefinition): string {
 }
 
 export function calculateProbabilisticPayoff(
-  spreadDefinition: SpreadDefinition,
+  position: Position,
   volatilityModel: VolatilityModel,
   optionChain: OptionData[],
   currentPrice: number
 ): number {
   let expectedPayoff = 0;
 
-  const longLeg = optionChain.find(
-    (opt) => opt.strike === spreadDefinition.longStrike && opt.type === spreadDefinition.type
-  );
-  const shortLeg = optionChain.find(
-    (opt) => opt.strike === spreadDefinition.shortStrike && opt.type === spreadDefinition.type
-  );
+  const longLeg = optionChain.find((opt) => opt.strike === position.longStrike && opt.type === position.type);
+  const shortLeg = optionChain.find((opt) => opt.strike === position.shortStrike && opt.type === position.type);
 
   if (!longLeg || !shortLeg) {
-    throw new Error('Could not find one or both legs of the spread in the option chain for probabilistic payoff calculation.');
+    throw new Error(
+      'Could not find one or both legs of the spread in the option chain for probabilistic payoff calculation.'
+    );
   }
 
   // Determine price range for dense grid
-  const allStrikes = optionChain.map(opt => opt.strike);
+  const allStrikes = optionChain.map((opt) => opt.strike);
   const minStrike = Math.min(...allStrikes);
   const maxStrike = Math.max(...allStrikes);
 
@@ -103,10 +88,11 @@ export function calculateProbabilisticPayoff(
 
     let payoff = 0;
 
-    if (spreadDefinition.type === 'call') {
-      payoff = Math.max(0, price - spreadDefinition.longStrike) - Math.max(0, price - spreadDefinition.shortStrike);
-    } else { // put spread
-      payoff = Math.max(0, spreadDefinition.longStrike - price) - Math.max(0, spreadDefinition.shortStrike - price);
+    if (position.type === 'call') {
+      payoff = Math.max(0, price - position.longStrike) - Math.max(0, price - position.shortStrike);
+    } else {
+      // put spread
+      payoff = Math.max(0, position.longStrike - price) - Math.max(0, position.shortStrike - price);
     }
 
     // The probability of this specific price occurring is the difference between its CDF and the previous one
@@ -118,45 +104,53 @@ export function calculateProbabilisticPayoff(
 }
 
 export function calculateProbabilityOfProfit(
-  spreadDefinition: SpreadDefinition,
+  position: Position,
   volatilityModel: VolatilityModel,
   currentPrice: number,
   breakEvenPrice: number
 ): number {
   const probAtBreakEven = getProbabilityForPrice(breakEvenPrice, currentPrice, volatilityModel);
 
-  if (spreadDefinition.side === 'debit') {
+  if (position.side === 'debit') {
     // For debit spreads, profit when price is beyond break-even in the direction of the spread
-    if (spreadDefinition.type === 'call') { // Bull Call
+    if (position.type === 'call') {
+      // Bull Call
       return 1 - probAtBreakEven;
-    } else { // Bear Put
+    } else {
+      // Bear Put
       return probAtBreakEven;
     }
-  } else { // credit spread
+  } else {
+    // credit spread
     // For credit spreads, profit when price is within the profitable range (usually between strikes or outside)
-    if (spreadDefinition.type === 'call') { // Bear Call
+    if (position.type === 'call') {
+      // Bear Call
       return probAtBreakEven;
-    } else { // Bull Put
+    } else {
+      // Bull Put
       return 1 - probAtBreakEven;
     }
   }
 }
 
-export function calculateBreakEvenPrice(
-  spreadDefinition: SpreadDefinition,
-  netPremium: number
-): number {
-  if (spreadDefinition.type === 'call') {
-    if (spreadDefinition.side === 'debit') { // Bull Call Spread
-      return spreadDefinition.longStrike - netPremium;
-    } else { // Bear Call Spread
-      return spreadDefinition.shortStrike + netPremium;
+export function calculateBreakEvenPrice(position: Position): number {
+  const { type, side, longStrike, shortStrike, netPremium } = position;
+  if (type === 'call') {
+    if (side === 'debit') {
+      // Bull Call Spread
+      return longStrike - netPremium;
+    } else {
+      // Bear Call Spread
+      return shortStrike + netPremium;
     }
-  } else { // put spread
-    if (spreadDefinition.side === 'debit') { // Bear Put Spread
-      return spreadDefinition.longStrike + netPremium;
-    } else { // Bull Put Spread
-      return spreadDefinition.shortStrike - netPremium;
+  } else {
+    // put spread
+    if (side === 'debit') {
+      // Bear Put Spread
+      return longStrike + netPremium;
+    } else {
+      // Bull Put Spread
+      return shortStrike - netPremium;
     }
   }
 }
