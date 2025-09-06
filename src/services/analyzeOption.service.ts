@@ -44,7 +44,7 @@ function optionPositionFactory(
     }
   }
 
-  return { type, side, longStrike, shortStrike, netPremium };
+  return { type, side, longStrike, shortStrike, netPremium, isSpread: false };
 }
 
 export async function analyzeOption(
@@ -98,5 +98,6 @@ export async function analyzeOption(
     longStrike: position.longStrike,
     shortStrike: position.shortStrike,
     expectedPnL: parseFloat(expectedPnL.toFixed(2)),
+    isSpread: position.isSpread,
   };
 }

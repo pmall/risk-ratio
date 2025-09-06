@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { analyzeOption } from '@/services/analyzeOption.service';
+import { displayPositionAnalysis } from '@/cli/ui/positionAnalysis';
 
 export const analyzeOptionCommand = new Command();
 
@@ -59,30 +60,7 @@ analyzeOptionCommand
         return;
       }
 
-      const displayValue = (value: number) => (options.raw ? value : Math.abs(value));
-
-      console.log(`--- Position Analysis for ${result.spreadType} ---`);
-      console.log(`Instrument: ${instrument}, Expiration: ${expiration}`);
-
-      if (result.side === 'debit') {
-        console.log(`Type: ${result.type}, Side: debit, Strike: ${options.strike}`);
-        console.log(`Net Premium: ${displayValue(result.netPremium)}`);
-        console.log(`Max Profit: ${result.maxReward === Infinity ? 'Unlimited' : displayValue(result.maxReward)}`);
-        console.log(`Max Loss: ${displayValue(result.maxRisk)}`);
-        console.log(`Expected Payoff at Expiration: ${displayValue(result.expectedPayoff)}`);
-      } else { // credit
-        console.log(`Type: ${result.type}, Side: credit, Strike: ${options.strike}`);
-        console.log(`Net Premium: ${displayValue(result.netPremium)}`);
-        console.log(`Max Profit: ${displayValue(result.maxReward)}`);
-        console.log(`Max Loss: ${result.maxRisk === Infinity ? 'Unlimited' : displayValue(result.maxRisk)}`);
-        console.log(`Expected Loss at Expiration: ${displayValue(result.expectedPayoff)}`);
-      }
-
-      console.log(`Expected PnL: ${result.expectedPnL}`);
-      console.log(`Risk/Reward Ratio: ${result.riskRewardRatio}`);
-      console.log(`Probability of Profit: ${(result.probabilityOfProfit * 100).toFixed(2)}%`);
-      console.log(`Break-Even Price: ${result.breakEvenPrice}`);
-      console.log(`--------------------------------------`);
+      displayPositionAnalysis(result, instrument, expiration, options);
     } catch (error: any) {
       console.error(`Error analyzing option: ${error.message}`);
     }

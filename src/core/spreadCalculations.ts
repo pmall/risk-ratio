@@ -41,6 +41,14 @@ export function calculateMaxProfitLoss(position: Position): { maxProfit: number;
 }
 
 export function getPositionType(position: Position): string {
+  if (!position.isSpread) {
+    if (position.side === 'debit') {
+      return `Long ${position.type}`;
+    } else {
+      return `Short ${position.type}`;
+    }
+  }
+
   if (position.type === 'call') {
     if (position.side === 'debit') {
       return 'Bull Call Spread';

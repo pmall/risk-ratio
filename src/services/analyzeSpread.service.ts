@@ -56,7 +56,7 @@ function spreadPositionFactory(
 
   const netPremium = calculateNetPremium(longStrike, shortStrike, type, optionChain);
 
-  return { type, side, longStrike, shortStrike, netPremium };
+  return { type, side, longStrike, shortStrike, netPremium, isSpread: true };
 }
 
 export async function analyzeSpread(
@@ -110,5 +110,6 @@ export async function analyzeSpread(
     longStrike: position.longStrike,
     shortStrike: position.shortStrike,
     expectedPnL: parseFloat(expectedPnL.toFixed(2)),
+    isSpread: position.isSpread,
   };
 }

@@ -24,6 +24,7 @@ export type Position = {
   longStrike: number;
   shortStrike: number;
   netPremium: number;
+  isSpread: boolean;
 };
 
 export interface PositionAnalysisResult {
@@ -40,4 +41,5 @@ export interface PositionAnalysisResult {
   longStrike: number;
   shortStrike: number;
   expectedPnL: number;
+  isSpread: boolean;
 }
