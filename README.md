@@ -176,7 +176,14 @@ Analyzes a single option position (long or short), providing detailed risk/rewar
   - For a **short option (credit)**, the virtual leg is a long option placed far OTM to cap theoretical loss (e.g., a short call is paired with a long call far above the current price).
 
 - **Output Metrics:**
-  The output metrics are the same as for `analyze-spread`, but interpreted for a single option. For example, "Max Profit" for a long call will be "Unlimited" as the virtual short leg is theoretically too far away to be hit.
+  The command provides a comprehensive analysis including:
+  - **Net Premium:** The raw premium paid (debit) or received (credit) for the position.
+  - **Max Profit / Max Loss:** The maximum possible profit and loss for the trade, accounting for the premium.
+  - **Expected Payoff at Expiration / Expected Loss at Expiration:** The probability-weighted intrinsic value of the position at expiration, _before_ accounting for the premium.
+  - **Expected PnL:** The overall expected profit or loss of the trade, accounting for the premium. This is the most direct measure of the trade's expected financial outcome.
+  - **Risk/Reward Ratio:** The ratio of expected payoff/loss to premium/risk.
+  - **Probability of Profit:** The chance that the position will expire profitably.
+  - **Break-Even Price:** The underlying price at which the trade neither makes nor loses money.
 
 ### 5. `analyze-spread`
 
@@ -197,12 +204,12 @@ Analyzes a single, user-defined vertical spread, providing detailed risk/reward 
 
 - **Output Metrics:**
   The command provides a comprehensive analysis including:
-  - **Net Premium:** The raw premium paid (debit) or received (credit) for the spread.
+  - **Net Premium:** The raw premium paid (debit) or received (credit) for the position.
   - **Max Profit / Max Loss:** The maximum possible profit and loss for the trade, accounting for the premium.
+  - **Expected Payoff at Expiration / Expected Loss at Expiration:** The probability-weighted intrinsic value of the position at expiration, _before_ accounting for the premium.
   - **Expected PnL:** The overall expected profit or loss of the trade, accounting for the premium. This is the most direct measure of the trade's expected financial outcome.
-  - **Expected Payoff at Expiration / Expected Loss at Expiration:** The probability-weighted intrinsic value of the spread at expiration, _before_ accounting for the premium.
   - **Risk/Reward Ratio:** The ratio of expected payoff/loss to premium/risk.
-  - **Probability of Profit:** The chance that the spread will expire profitably.
+  - **Probability of Profit:** The chance that the position will expire profitably.
   - **Break-Even Price:** The underlying price at which the trade neither makes nor loses money.
 
 ## 💻 Technology Stack
