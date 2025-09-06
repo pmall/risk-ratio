@@ -65,7 +65,14 @@ export function calculateProbabilisticPayoff(
 ): number {
   let expectedPayoff = 0;
 
-  
+  const longLeg = optionChain.find((opt) => opt.strike === position.longStrike && opt.type === position.type);
+  const shortLeg = optionChain.find((opt) => opt.strike === position.shortStrike && opt.type === position.type);
+
+  if (!longLeg || !shortLeg) {
+    throw new Error(
+      'Could not find one or both legs of the spread in the option chain for probabilistic payoff calculation.'
+    );
+  }
 
   // Determine price range for dense grid
   const allStrikes = optionChain.map((opt) => opt.strike);
