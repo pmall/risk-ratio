@@ -4,6 +4,7 @@ import { listExpirationsCommand } from '@/cli/commands/listExpirations';
 import { snapshotCommand } from '@/cli/commands/snapshot';
 import { configCommand } from '@/cli/commands/config';
 import { analyzeSpreadCommand } from '@/cli/commands/analyzeSpread';
+import { analyzeOptionCommand } from '@/cli/commands/analyzeOption';
 
 const program = new Command();
 
@@ -18,5 +19,6 @@ program.addCommand(snapshotCommand);
 program.addCommand(configCommand);
 
 program.addCommand(analyzeSpreadCommand);
+program.addCommand(analyzeOptionCommand);
 
 program.parse(process.argv);
